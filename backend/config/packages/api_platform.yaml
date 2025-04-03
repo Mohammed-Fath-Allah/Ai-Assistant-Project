@@ -5,12 +5,5 @@ api_platform:
         stateless: true
         cache_headers:
             vary: ['Content-Type', 'Authorization', 'Origin']
-    swagger:
-        api_keys:
-            Authorization:
-                name: Authorization
-                type: header
-
-    graphql:
-        enabled: false
-    show_webby: false
+    mapping:
+        paths: ['%kernel.project_dir%/src/Entity']

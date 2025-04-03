@@ -16,7 +16,7 @@ use Doctrine\Common\Collections\Collection;
 #[ORM\Entity(repositoryClass: AssistantRepository::class)]
 #[ApiResource]
 class Assistant
-{
+{   
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: "integer")]

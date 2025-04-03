@@ -1,5 +1,5 @@
 security:
-    enable_authenticator_manager: true
+    # enable_authenticator_manager: true
     password_hashers:
         App\Entity\User:
             algorithm: auto
@@ -31,15 +31,11 @@ security:
             jwt: ~
 
     access_control:
-        - { path: ^/api/login, roles: PUBLIC_ACCESS }
-        - { path: ^/api/users$, roles: PUBLIC_ACCESS, methods: [POST] }
+            - { path: ^/api/login, roles: PUBLIC_ACCESS }
+            - { path: ^/api/docs, roles: PUBLIC_ACCESS }
+            - { path: ^/api/users, roles: ROLE_ADMIN }
+            - { path: ^/api/assistants, roles: ROLE_ADMIN }
+            - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
 
-        - { path: ^/api/users, roles: ROLE_ADMIN }
 
-        - { path: ^/api/assistants, roles: IS_AUTHENTICATED_FULLY }
-        - { path: ^/api/assistant_tools, roles: IS_AUTHENTICATED_FULLY }
-        - { path: ^/api/knowledge_bases, roles: IS_AUTHENTICATED_FULLY }
-        - { path: ^/api/tools, roles: IS_AUTHENTICATED_FULLY }
-
-        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
 

@@ -23,9 +23,9 @@ class CreateUserCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $user = new User();
-        $user->setEmail("test2@example.com");
+        $user->setEmail("test@example.com");
         $user->setRoles(["ROLE_ADMIN"]);
-        $hashedPassword = $this->passwordHasher->hashPassword($user, "12345678910");
+        $hashedPassword = $this->passwordHasher->hashPassword($user, "123456789");
         $user->setPassword($hashedPassword);
 
         $this->em->persist($user);
