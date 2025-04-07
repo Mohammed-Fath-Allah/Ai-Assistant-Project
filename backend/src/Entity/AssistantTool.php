@@ -8,7 +8,10 @@ use ApiPlatform\Metadata\ApiResource;
 use App\Entity\Assistant;
 
 #[ORM\Entity(repositoryClass: AssistantToolRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    security: "is_granted('ROLE_USER')",
+    securityPostDenormalize: "object.getUser() == user"
+)]
 class AssistantTool
 {
     #[ORM\Id]

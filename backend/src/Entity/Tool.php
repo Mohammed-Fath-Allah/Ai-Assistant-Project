@@ -11,7 +11,10 @@ use App\Entity\AssistantTool;
 
 
 #[ORM\Entity(repositoryClass: ToolRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    security: "is_granted('ROLE_USER')",
+    securityPostDenormalize: "object.getUser() == user"
+)]
 class Tool
 {
     #[ORM\Id]

@@ -16,6 +16,8 @@ use App\Controller\UploadKnowledgeBase;
 
 #[ORM\Entity(repositoryClass: KnowledgeBaseRepository::class)]
 #[ApiResource(
+    security: "is_granted('ROLE_USER')",
+    securityPostDenormalize: "object.getUser() == user",
     normalizationContext: ['groups' => ['knowledge:read']],
     denormalizationContext: ['groups' => ['knowledge:write']],
     input: false,

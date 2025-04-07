@@ -21,6 +21,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?int $id = null;
 
+    #[ORM\Column(type: "string", length: 100, unique: true)]
+    private ?string $name = null;
+
     #[ORM\Column(type: "string", length: 180, unique: true)]
     private string $email;
 
@@ -36,6 +39,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
+    #[ORM\Column(type: "datetime", nullable: true)]
+    private \DateTimeInterface $createdAt;
+
     public function __construct()
     {
         $this->assistants = new ArrayCollection();
@@ -44,6 +50,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getName() {
+        return $this->name;
+    }
+
+    public function setName(string $name): self
+    {
+        $this->name = $name;
+        return $this;
     }
 
     public function getEmail(): string
@@ -103,6 +119,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function getCreatedAt(): \DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeInterface $createdAt): self
+    {
+        $this->createdAt = $createdAt;
+        return $this;
+    }
+
     public function eraseCredentials(): void
     {
         
@@ -111,6 +138,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @return Collection<int, Assistant>
      */
+
     public function getAssistants(): Collection
     {
         return $this->assistants;

@@ -32,9 +32,10 @@ security:
 
     access_control:
             - { path: ^/api/login, roles: PUBLIC_ACCESS }
+            - { path: ^/api/register, roles: PUBLIC_ACCESS }
             - { path: ^/api/docs, roles: PUBLIC_ACCESS }
             - { path: ^/api/users, roles: ROLE_ADMIN }
-            - { path: ^/api/assistants, roles: ROLE_ADMIN }
+            - { path: ^/api/assistants, roles: ROLE_USER }
             - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
 
 

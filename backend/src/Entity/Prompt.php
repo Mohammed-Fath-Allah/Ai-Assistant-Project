@@ -10,6 +10,8 @@ use App\Entity\Assistant;
 
 #[ORM\Entity(repositoryClass: PromptRepository::class)] 
 #[ApiResource(
+    security: "is_granted('ROLE_USER')",
+    securityPostDenormalize: "object.getUser() == user",
     normalizationContext: ['groups' => ['prompt:read']],
     denormalizationContext: ['groups' => ['prompt:write']]
 )]

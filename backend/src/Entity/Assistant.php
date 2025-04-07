@@ -16,7 +16,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Table(name: "assistants")]
 #[ORM\Entity(repositoryClass: AssistantRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    security: "is_granted('ROLE_USER')",
+    securityPostDenormalize: "object.getUser() == user"
+)]
 class Assistant
 {   
     #[ORM\Id]

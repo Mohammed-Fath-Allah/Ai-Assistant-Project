@@ -1,3 +1,9 @@
 api_login_check:
   path: /api/login
   methods: [POST]
+
+
+register:
+  path: /api/register
+  controller: App\Controller\RegisterController
+  methods: [POST]
