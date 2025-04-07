@@ -3,6 +3,7 @@
 /backend/vendor/
 /backend/.env.local
 /backend/.DS_Store
+/backend/config/jwt
 
 # Node.js
 /frontend/node_modules/

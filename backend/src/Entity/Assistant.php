@@ -7,9 +7,11 @@ use ApiPlatform\Metadata\ApiResource;
 use App\Entity\User;
 use App\Entity\KnowledgeBase;
 use App\Entity\AssistantTool;
+use App\Entity\Prompt;
 use App\Repository\AssistantRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 
 #[ORM\Table(name: "assistants")]
@@ -45,11 +47,16 @@ class Assistant
     #[ORM\OneToMany(mappedBy: 'assistant', targetEntity: AssistantTool::class, cascade: ['persist', 'remove'])]
     private Collection $assistantTools;
 
+    #[ORM\OneToMany(mappedBy: 'assistant', targetEntity: Prompt::class, orphanRemoval: true)]
+    #[Groups(['assistant:read'])]
+    private Collection $prompts;
+
     public function __construct()
     {
         $this->createdAt = new \DateTime();
         $this->knowledgeBases = new ArrayCollection();
         $this->assistantTools = new ArrayCollection();
+        $this->prompts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -110,6 +117,11 @@ class Assistant
     {
         $this->user = $user;
         return $this;
+    }
+
+    public function getPrompts(): Collection
+    {
+        return $this->prompts;
     }
 
     public function getKnowledgeBases(): Collection
