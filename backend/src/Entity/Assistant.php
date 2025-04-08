@@ -4,6 +4,11 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Delete;
 use App\Entity\User;
 use App\Entity\KnowledgeBase;
 use App\Entity\AssistantTool;
@@ -18,7 +23,16 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Entity(repositoryClass: AssistantRepository::class)]
 #[ApiResource(
     security: "is_granted('ROLE_USER')",
-    securityPostDenormalize: "object.getUser() == user"
+    operations: [
+        new Get(),
+        new GetCollection(),
+        new Post(security: "is_granted('ROLE_USER')"),
+        new Put(security: "object.getUser() == user"),
+        new Delete(security: "object.getUser() == user")
+    ],
+    // securityPostDenormalize: "object.getUser() == user",
+    normalizationContext: ['groups' => ['assistant:read']],
+    denormalizationContext: ['groups' => ['assistant:write']]
 )]
 class Assistant
 {   
@@ -28,17 +42,19 @@ class Assistant
     private ?int $id = null;
 
     #[ORM\Column(type: "string", length: 255)]
+    #[Groups(['assistant:read', 'assistant:write'])]
     private string $name;
 
-    #[ORM\Column(type: "text", nullable: true)]
+    #[ORM\Column(type: "text" , nullable: true)]
+    #[Groups(['assistant:read', 'assistant:write'])]
     private ?string $description = null;
 
     #[ORM\Column(type: "datetime", nullable: false)]
     private \DateTimeInterface $createdAt;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['assistant:read', 'assistant:write'])]
     private ?string $embedType = null;
-
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: "assistants")]
     #[ORM\JoinColumn(nullable: false, onDelete: "CASCADE")]
@@ -48,18 +64,18 @@ class Assistant
     private Collection $knowledgeBases;
 
     #[ORM\OneToMany(mappedBy: 'assistant', targetEntity: AssistantTool::class, cascade: ['persist', 'remove'])]
+    #[Groups(['assistant:read', 'assistant:write'])]
     private Collection $assistantTools;
 
-    #[ORM\OneToMany(mappedBy: 'assistant', targetEntity: Prompt::class, orphanRemoval: true)]
-    #[Groups(['assistant:read'])]
-    private Collection $prompts;
+    #[ORM\OneToOne(mappedBy: 'assistant', targetEntity: Prompt::class, cascade: ['persist', 'remove'])]
+    #[Groups(['assistant:read', 'assistant:write'])]
+    private ?Prompt $prompt = null;
 
     public function __construct()
     {
         $this->createdAt = new \DateTime();
         $this->knowledgeBases = new ArrayCollection();
         $this->assistantTools = new ArrayCollection();
-        $this->prompts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -122,34 +138,51 @@ class Assistant
         return $this;
     }
 
-    public function getPrompts(): Collection
+    public function getPrompt(): ?Prompt
     {
-        return $this->prompts;
+        return $this->prompt;
+    }
+
+    public function setPrompt(?Prompt $prompt): self
+    {
+        $this->prompt = $prompt;
+
+        if ($prompt !== null && $prompt->getAssistant() !== $this) {
+            $prompt->setAssistant($this);
+        }
+
+        return $this;
+    }
+
+    #[Groups(['assistant:read'])]
+    public function getTools(): array
+    {
+        return $this->assistantTools->map(fn($at) => $at->getTool())->toArray();
     }
 
     public function getKnowledgeBases(): Collection
-        {
-            return $this->knowledgeBases;
-        }
+    {
+        return $this->knowledgeBases;
+    }
 
     public function addKnowledgeBase(KnowledgeBase $knowledgeBase): self
-        {
-            if (!$this->knowledgeBases->contains($knowledgeBase)) {
-                $this->knowledgeBases[] = $knowledgeBase;
-                $knowledgeBase->setAssistant($this);
-            }
-            return $this;
+    {
+        if (!$this->knowledgeBases->contains($knowledgeBase)) {
+            $this->knowledgeBases[] = $knowledgeBase;
+            $knowledgeBase->setAssistant($this);
         }
+        return $this;
+    }
 
     public function removeKnowledgeBase(KnowledgeBase $knowledgeBase): self
-        {
-            if ($this->knowledgeBases->contains($knowledgeBase) and $knowledgeBase->getAssistant() === $this) 
-                {   
-                    $this->knowledgeBases->removeElement($knowledgeBase);
-                    $knowledgeBase->setAssistant(null);
-                }
-            return $this;
-        }
+    {
+        if ($this->knowledgeBases->contains($knowledgeBase) and $knowledgeBase->getAssistant() === $this) 
+            {   
+                $this->knowledgeBases->removeElement($knowledgeBase);
+                $knowledgeBase->setAssistant(null);
+            }
+        return $this;
+    }
 
     public function getAssistantTools(): Collection
     {

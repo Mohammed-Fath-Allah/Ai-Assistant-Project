@@ -23,5 +23,15 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+    App\DataPersister\AssistantDataPersister:
+        decorates: 'api_platform.doctrine.orm.state.persist_processor'
+        arguments:
+            - '@doctrine.orm.entity_manager'
+            - '@security.helper'
+            - '@App\DataPersister\AssistantDataPersister.inner'
+        autowire: true
+        autoconfigure: false
+
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

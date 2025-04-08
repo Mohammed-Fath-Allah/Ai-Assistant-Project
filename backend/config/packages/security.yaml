@@ -31,11 +31,12 @@ security:
             jwt: ~
 
     access_control:
-            - { path: ^/api/login, roles: PUBLIC_ACCESS }
+            - { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
             - { path: ^/api/register, roles: PUBLIC_ACCESS }
             - { path: ^/api/docs, roles: PUBLIC_ACCESS }
             - { path: ^/api/users, roles: ROLE_ADMIN }
-            - { path: ^/api/assistants, roles: ROLE_USER }
+            - { path: ^/api/assistants, roles: IS_AUTHENTICATED_FULLY }
+            - { path: ^/api/prompts, roles: IS_AUTHENTICATED_FULLY }
             - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
 
 

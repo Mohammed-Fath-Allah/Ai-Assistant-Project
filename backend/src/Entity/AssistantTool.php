@@ -5,12 +5,23 @@ namespace App\Entity;
 use App\Repository\AssistantToolRepository;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Delete;
 use App\Entity\Assistant;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: AssistantToolRepository::class)]
 #[ApiResource(
-    security: "is_granted('ROLE_USER')",
-    securityPostDenormalize: "object.getUser() == user"
+    operations: [
+        new GetCollection(),
+        new Get(security: "object.getAssistant().getUser() == user"),
+        new Post(securityPostDenormalize: "object.getAssistant() != null and object.getAssistant().getUser() == user"),
+        new Delete(security: "object.getAssistant().getUser() == user"),
+    ],
+    normalizationContext: ['groups' => ['assistantTool:read']],
+    denormalizationContext: ['groups' => ['assistantTool:write']]
 )]
 class AssistantTool
 {
@@ -19,10 +30,14 @@ class AssistantTool
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'assistantTools')]
+    #[ORM\ManyToOne(targetEntity: Assistant::class, inversedBy: 'assistantTools')]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['assistantTool:read', 'assistantTool:write'])]
     private ?Assistant $assistant = null;
 
-    #[ORM\ManyToOne(inversedBy: 'assistantTools')]
+    #[ORM\ManyToOne(targetEntity: Tool::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['assistantTool:read', 'assistantTool:write'])]
     private ?Tool $tool = null;
 
     public function getId(): ?int { return $this->id; }

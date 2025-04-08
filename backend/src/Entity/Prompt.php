@@ -3,6 +3,11 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Delete;
 use App\Repository\PromptRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -10,8 +15,13 @@ use App\Entity\Assistant;
 
 #[ORM\Entity(repositoryClass: PromptRepository::class)] 
 #[ApiResource(
-    security: "is_granted('ROLE_USER')",
-    securityPostDenormalize: "object.getUser() == user",
+    operations: [
+        new GetCollection(),
+        new Get(security: "object.getAssistant() != null and object.getAssistant().getUser() == user"),
+        new Post(securityPostDenormalize: "object.getAssistant() != null and object.getAssistant().getUser() == user"),
+        new Put(security: "object.getAssistant() != null and object.getAssistant().getUser() == user"),
+        new Delete(security: "object.getAssistant() != null and object.getAssistant().getUser() == user"),
+    ],
     normalizationContext: ['groups' => ['prompt:read']],
     denormalizationContext: ['groups' => ['prompt:write']]
 )]
@@ -35,9 +45,9 @@ class Prompt
     #[Groups(['prompt:read', 'assistant:read'])]
     private \DateTimeInterface $createdAt;
 
-    #[ORM\ManyToOne(targetEntity: Assistant::class, inversedBy: 'prompts')] 
+    #[ORM\OneToOne(inversedBy: 'prompt', targetEntity: Assistant::class)]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['prompt:read', 'prompt:write'])] 
+    #[Groups(['prompt:read', 'prompt:write'])]
     private ?Assistant $assistant = null;
 
     
