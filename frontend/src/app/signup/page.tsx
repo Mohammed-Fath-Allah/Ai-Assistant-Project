@@ -6,18 +6,20 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { FiUser, FiMail, FiLock, FiCheck, FiArrowLeft } from "react-icons/fi";
 import AIWidget from "../components/AIWidget";
-
-
+import { useRouter } from "next/navigation";
 
 export default function SignUpPage() {
   const iconRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     confirmPassword: ''
   });
+  const router = useRouter();
 
   useGSAP(() => {
     if (iconRefs.current) {
@@ -33,15 +35,16 @@ export default function SignUpPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    setSuccess(false);
     const newErrors: Record<string, string> = {};
-  
-    // Validate all fields
+
     if (!formData.name.trim()) newErrors.name = "Full name is required";
     if (!formData.email.trim()) newErrors.email = "Email is required";
     if (!formData.password) newErrors.password = "Password is required";
     if (!formData.confirmPassword) newErrors.confirmPassword = "Please confirm your password";
   
-    // Password complexity validation
+
     if (formData.password) {
       if (formData.password.length < 8) {
         newErrors.password = "Password must be at least 8 characters";
@@ -82,9 +85,14 @@ export default function SignUpPage() {
   
         if (response.ok) {
           alert('Account created successfully!');
-          // Redirect or further actions here (e.g., navigate to login page)
+          setSuccess(true);
+          setLoading(false);
+
+          setTimeout(() => {
+            router.push("/login");
+          }, 1500);
+    
         } else {
-          // Handle backend errors
           setErrors({
             general: data.error || 'An unexpected error occurred. Please try again.',
           });
@@ -133,7 +141,6 @@ export default function SignUpPage() {
           Create your account in seconds
         </p>
 
-        {/* Error message container */}
         {Object.keys(errors).length > 0 && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600">
             {Object.values(errors)[0]}
@@ -229,7 +236,8 @@ export default function SignUpPage() {
             Sign Up
           </button>
         </form>
-
+        {loading && <p className="text-sm text-gray-500 text-center">Creating account...</p>}
+        {success && <p className="text-sm text-green-600 text-center">Account created! Redirecting...</p>}
         <div className="mt-6 text-center text-sm text-gray-500">
           Already have an account?{" "}
           <Link href="/login" className="text-indigo-600 hover:underline font-medium">

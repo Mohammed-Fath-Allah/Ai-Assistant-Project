@@ -166,6 +166,7 @@ import { useGSAP } from "@gsap/react";
 import { FiMail, FiLock, FiArrowRight, FiArrowLeft, FiUser } from "react-icons/fi";
 import AIWidget from "../components/AIWidget";
 
+
 export default function LoginPage() {
   const emailIconRef = useRef<HTMLDivElement>(null);
   const passwordIconRef = useRef<HTMLDivElement>(null);
@@ -175,8 +176,9 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
-  // Check if the user is logged in on initial load
   useEffect(() => {
     if (localStorage.getItem("token")) {
       setIsLoggedIn(true);
@@ -204,6 +206,8 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    setSuccess(false);
 
     try {
       const res = await fetch("https://localhost:8000/api/login", {
@@ -225,15 +229,17 @@ export default function LoginPage() {
       // Save token and user info in localStorage
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));  // Store user data
-
       setIsLoggedIn(true); // Update logged-in state
+      setSuccess(true);
 
-      // Redirect to home page
-      router.push("/");
+      setTimeout(() => {
+        router.push("/");
+      }, 1000);
 
     } catch (err) {
       console.error("Login error:", err);
       alert("Something went wrong");
+      setLoading(false);
     }
   };
 
@@ -252,7 +258,7 @@ export default function LoginPage() {
         className="bg-white/80 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl w-full max-w-md p-8"
       >
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">Hello User</h1>
           <p className="text-gray-500">Sign in to your account</p>
         </div>
 
@@ -320,6 +326,8 @@ export default function LoginPage() {
             >
               Log In <FiArrowRight />
             </button>
+            {loading && <p className="text-sm text-gray-500 text-center">Logging in...</p>}
+            {success && <p className="text-sm text-green-600 text-center">Login successful! Redirecting...</p>}
           </form>
         ) : (
           <div className="flex items-center justify-between">
