@@ -16,10 +16,10 @@ class UploadKnowledgeBase
     public function __invoke(Request $request, EntityManagerInterface $em): JsonResponse
     {   
         $file = $request->files->get('file');
-        $type = $request->request->get('type');
+        $fileName = $request->request->get('filename');
         $assistantIri = $request->request->get('assistant');
 
-        if (!$file || !$type ) {
+        if (!$file || !$fileName || !$assistantIri) {
             return new JsonResponse(['error' => 'Missing data'], 400);
         }
 
@@ -32,7 +32,7 @@ class UploadKnowledgeBase
 
         $kb = new KnowledgeBase();
         $kb->setFile($file);
-        $kb->setType($type);
+        $kb->setFileName($fileName);
         $kb->setAssistant($assistant);
         $kb->setCreatedAt(new \DateTimeImmutable());
 

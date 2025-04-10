@@ -11,8 +11,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\Groups;
 use App\Controller\UploadKnowledgeBase;
-
-
+use phpDocumentor\Reflection\Types\Nullable;
 
 #[ORM\Entity(repositoryClass: KnowledgeBaseRepository::class)]
 #[ApiResource(
@@ -37,14 +36,6 @@ class KnowledgeBase
     #[Groups(['knowledge:read'])]
     private ?int $id = null;
 
-    // #[ORM\Column(length: 255)]
-    // #[Groups(['knowledge:read', 'knowledge:write'])]
-    // private ?string $filePath = null;
-
-    #[ORM\Column(length: 50)]
-    #[Groups(['knowledge:read', 'knowledge:write'])]
-    private ?string $type = null;
-
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     #[Groups(['knowledge:read'])]
     private ?\DateTimeImmutable $createdAt = null;
@@ -59,11 +50,11 @@ class KnowledgeBase
         maxSize: "10M",
         mimeTypes: ["application/pdf", "text/plain", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "text/csv"]
     )]
-    #[Groups(['knowledge:write'])]
+    #[Groups(['knowledge:write', 'knowledge:read'])]
     private ?File $file = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['knowledge:read'])]
+    #[Groups(['knowledge:read' , 'knowledge:write'])]
     private ?string $fileName = null;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
@@ -73,10 +64,6 @@ class KnowledgeBase
     public function getId(): ?int { return $this->id; }
     public function getFileName(): ?string { return $this->fileName; }
     public function setFileName(string $fileName): self { $this->fileName = $fileName; return $this; }
-    // public function getFilePath(): ?string { return $this->filePath; }
-    // public function setFilePath(string $filePath): self { $this->filePath = $filePath; return $this; }
-    public function getType(): ?string { return $this->type; }
-    public function setType(string $type): self { $this->type = $type; return $this; }
     public function getCreatedAt(): ?\DateTimeImmutable { return $this->createdAt; }
     public function setCreatedAt(\DateTimeImmutable $createdAt): self { $this->createdAt = $createdAt; return $this; }
     public function getAssistant(): ?Assistant { return $this->assistant; }
